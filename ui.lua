@@ -1207,4 +1207,380 @@ function Library.AddKeybind(container, text, defaultKey, callback)
     end)
 end
 
+-- Notification System
+local Notifications = Instance.new("Frame")
+Notifications.Name = "Notifications"
+Notifications.Size = UDim2.new(0, 400, 1, -20)
+Notifications.Position = UDim2.new(1, -410, 0, 10)
+Notifications.BackgroundTransparency = 1
+Notifications.Parent = mainGui
+
+local NotificationsLayout = Instance.new("UIListLayout")
+NotificationsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NotificationsLayout.Padding = UDim.new(0, 10)
+NotificationsLayout.Parent = Notifications
+
+-- Icon Module (Material Icons from Luna)
+-- Replace your existing IconModule with this complete version
+local IconModule = {
+    Material = {
+        -- Info & Status
+        ["info"] = "http://www.roblox.com/asset/?id=6026568227",
+        ["warning"] = "http://www.roblox.com/asset/?id=6031071053",
+        ["error"] = "http://www.roblox.com/asset/?id=6031071057",
+        ["success"] = "http://www.roblox.com/asset/?id=6023426945",
+        ["check_circle"] = "http://www.roblox.com/asset/?id=6023426945",
+        ["error_outline"] = "http://www.roblox.com/asset/?id=6031071050",
+        ["notification_important"] = "http://www.roblox.com/asset/?id=6031071056",
+        
+        -- General
+        ["home"] = "http://www.roblox.com/asset/?id=6026568195",
+        ["settings"] = "http://www.roblox.com/asset/?id=6031280882",
+        ["menu"] = "http://www.roblox.com/asset/?id=6031097225",
+        ["close"] = "http://www.roblox.com/asset/?id=6031094678",
+        ["search"] = "http://www.roblox.com/asset/?id=6031154871",
+        ["refresh"] = "http://www.roblox.com/asset/?id=6031097226",
+        ["download"] = "http://www.roblox.com/asset/?id=6031302931",
+        ["upload"] = "http://www.roblox.com/asset/?id=6031302959",
+        
+        -- Actions
+        ["add"] = "http://www.roblox.com/asset/?id=6035047377",
+        ["remove"] = "http://www.roblox.com/asset/?id=6035067836",
+        ["delete"] = "http://www.roblox.com/asset/?id=6022668885",
+        ["edit"] = "http://www.roblox.com/asset/?id=6034328955",
+        ["save"] = "http://www.roblox.com/asset/?id=6035067857",
+        ["cancel"] = "http://www.roblox.com/asset/?id=6031094677",
+        ["done"] = "http://www.roblox.com/asset/?id=6023426926",
+        ["clear"] = "http://www.roblox.com/asset/?id=6035047409",
+        
+        -- Media
+        ["play_arrow"] = "http://www.roblox.com/asset/?id=6026663699",
+        ["pause"] = "http://www.roblox.com/asset/?id=6026663719",
+        ["stop"] = "http://www.roblox.com/asset/?id=6026681576",
+        ["volume_up"] = "http://www.roblox.com/asset/?id=6026671215",
+        ["volume_off"] = "http://www.roblox.com/asset/?id=6026671224",
+        
+        -- Communication
+        ["mail"] = "http://www.roblox.com/asset/?id=6035056477",
+        ["chat"] = "http://www.roblox.com/asset/?id=6035173838",
+        ["call"] = "http://www.roblox.com/asset/?id=6035173859",
+        ["message"] = "http://www.roblox.com/asset/?id=6035202033",
+        
+        -- Content
+        ["copy"] = "http://www.roblox.com/asset/?id=6035053278",
+        ["cut"] = "http://www.roblox.com/asset/?id=6035053280",
+        ["paste"] = "http://www.roblox.com/asset/?id=6035053285",
+        ["link"] = "http://www.roblox.com/asset/?id=6035056475",
+        ["attachment"] = "http://www.roblox.com/asset/?id=6031302921",
+        
+        -- Navigation
+        ["arrow_back"] = "http://www.roblox.com/asset/?id=6031091000",
+        ["arrow_forward"] = "http://www.roblox.com/asset/?id=6031090995",
+        ["arrow_upward"] = "http://www.roblox.com/asset/?id=6031090997",
+        ["arrow_downward"] = "http://www.roblox.com/asset/?id=6031090991",
+        ["chevron_left"] = "http://www.roblox.com/asset/?id=6031094670",
+        ["chevron_right"] = "http://www.roblox.com/asset/?id=6031094680",
+        ["expand_more"] = "http://www.roblox.com/asset/?id=6031094687",
+        ["expand_less"] = "http://www.roblox.com/asset/?id=6031094679",
+        
+        -- Toggle
+        ["check_box"] = "http://www.roblox.com/asset/?id=6031068421",
+        ["check_box_outline_blank"] = "http://www.roblox.com/asset/?id=6031068420",
+        ["radio_button_checked"] = "http://www.roblox.com/asset/?id=6031068426",
+        ["radio_button_unchecked"] = "http://www.roblox.com/asset/?id=6031068433",
+        ["star"] = "http://www.roblox.com/asset/?id=6031068423",
+        ["star_border"] = "http://www.roblox.com/asset/?id=6031068425",
+        ["toggle_on"] = "http://www.roblox.com/asset/?id=6031068430",
+        ["toggle_off"] = "http://www.roblox.com/asset/?id=6031068429",
+        
+        -- Social
+        ["person"] = "http://www.roblox.com/asset/?id=6034287594",
+        ["group"] = "http://www.roblox.com/asset/?id=6034281901",
+        ["share"] = "http://www.roblox.com/asset/?id=6034230648",
+        ["thumb_up"] = "http://www.roblox.com/asset/?id=6031229347",
+        ["thumb_down"] = "http://www.roblox.com/asset/?id=6031229336",
+        ["favorite"] = "http://www.roblox.com/asset/?id=6023426974",
+        
+        -- Files & Folders
+        ["folder"] = "http://www.roblox.com/asset/?id=6031302932",
+        ["folder_open"] = "http://www.roblox.com/asset/?id=6031302934",
+        ["insert_drive_file"] = "http://www.roblox.com/asset/?id=6034941697",
+        ["cloud"] = "http://www.roblox.com/asset/?id=6031302918",
+        ["cloud_download"] = "http://www.roblox.com/asset/?id=6031302917",
+        ["cloud_upload"] = "http://www.roblox.com/asset/?id=6031302992",
+        
+        -- Devices
+        ["computer"] = "http://www.roblox.com/asset/?id=6034789874",
+        ["smartphone"] = "http://www.roblox.com/asset/?id=6034848731",
+        ["headset"] = "http://www.roblox.com/asset/?id=6034789880",
+        ["watch"] = "http://www.roblox.com/asset/?id=6034848747",
+        ["gamepad"] = "http://www.roblox.com/asset/?id=6034789879",
+        
+        -- Special & Decorative
+        ["sparkle"] = "http://www.roblox.com/asset/?id=4483362748",
+        ["star_rate"] = "http://www.roblox.com/asset/?id=6031265978",
+        ["whatshot"] = "http://www.roblox.com/asset/?id=6034287525",
+        ["emoji_events"] = "http://www.roblox.com/asset/?id=6034275726",
+        ["celebration"] = "http://www.roblox.com/asset/?id=6034767613",
+        ["military_tech"] = "http://www.roblox.com/asset/?id=6034295711",
+        ["workspace_premium"] = "http://www.roblox.com/asset/?id=6031302952",
+        
+        -- Security
+        ["lock"] = "http://www.roblox.com/asset/?id=6026568224",
+        ["lock_open"] = "http://www.roblox.com/asset/?id=6026568220",
+        ["security"] = "http://www.roblox.com/asset/?id=6034837802",
+        ["shield"] = "http://www.roblox.com/asset/?id=6035078889",
+        ["vpn_key"] = "http://www.roblox.com/asset/?id=6035202034",
+        
+        -- Time
+        ["schedule"] = "http://www.roblox.com/asset/?id=6031260808",
+        ["alarm"] = "http://www.roblox.com/asset/?id=6023426910",
+        ["timer"] = "http://www.roblox.com/asset/?id=6031754564",
+        ["history"] = "http://www.roblox.com/asset/?id=6026568197",
+        
+        -- Maps & Location
+        ["location_on"] = "http://www.roblox.com/asset/?id=6035190846",
+        ["map"] = "http://www.roblox.com/asset/?id=6034684930",
+        ["navigation"] = "http://www.roblox.com/asset/?id=6034509984",
+        ["pin_drop"] = "http://www.roblox.com/asset/?id=6034470807",
+        
+        -- Image & Media
+        ["image"] = "http://www.roblox.com/asset/?id=6034407078",
+        ["photo_camera"] = "http://www.roblox.com/asset/?id=6031770997",
+        ["videocam"] = "http://www.roblox.com/asset/?id=6026671213",
+        ["music_note"] = "http://www.roblox.com/asset/?id=6034323673",
+        
+        -- Shopping
+        ["shopping_cart"] = "http://www.roblox.com/asset/?id=6031265976",
+        ["payment"] = "http://www.roblox.com/asset/?id=6031084751",
+        ["credit_card"] = "http://www.roblox.com/asset/?id=6023426942",
+        ["receipt"] = "http://www.roblox.com/asset/?id=6031086173",
+        
+        -- Transportation
+        ["directions_car"] = "http://www.roblox.com/asset/?id=6034754441",
+        ["flight"] = "http://www.roblox.com/asset/?id=6034744030",
+        ["train"] = "http://www.roblox.com/asset/?id=6034467803",
+        ["directions_bus"] = "http://www.roblox.com/asset/?id=6034754434",
+        
+        -- Weather
+        ["wb_sunny"] = "http://www.roblox.com/asset/?id=6034412758",
+        ["cloudy"] = "http://www.roblox.com/asset/?id=6031734907",
+        ["flash_on"] = "http://www.roblox.com/asset/?id=6034333271",
+        ["ac_unit"] = "http://www.roblox.com/asset/?id=6035107929",
+        
+        -- Food
+        ["restaurant"] = "http://www.roblox.com/asset/?id=6034503366",
+        ["local_cafe"] = "http://www.roblox.com/asset/?id=6034687954",
+        ["cake"] = "http://www.roblox.com/asset/?id=6034295702",
+        ["local_bar"] = "http://www.roblox.com/asset/?id=6034687950",
+        
+        -- Sports
+        ["sports_esports"] = "http://www.roblox.com/asset/?id=6034227061",
+        ["sports_soccer"] = "http://www.roblox.com/asset/?id=6034227075",
+        ["sports_basketball"] = "http://www.roblox.com/asset/?id=6034230649",
+        ["fitness_center"] = "http://www.roblox.com/asset/?id=6035121907"
+    }
+}
+
+local function GetIcon(icon, source)
+    if source == "Material" and IconModule.Material[icon] then
+        return IconModule.Material[icon]
+    end
+    -- Default icon if not found
+    return IconModule.Material["info"]
+end
+
+local function Kwargify(defaults, passed)
+    for i, v in pairs(defaults) do
+        if passed[i] == nil then
+            passed[i] = v
+        end
+    end
+    return passed
+end
+
+function Library:Notification(data)
+    task.spawn(function()
+        data = Kwargify({
+            Title = "Notification",
+            Content = "This is a notification",
+            Icon = "info",
+            ImageSource = "Material",
+            Duration = 5
+        }, data or {})
+        
+        -- Create notification template
+        local NotificationTemplate = Instance.new("Frame")
+        NotificationTemplate.Size = UDim2.new(1, 0, 0, 80)
+        NotificationTemplate.BackgroundColor3 = Colors.DarkPrimary
+        NotificationTemplate.BackgroundTransparency = 0.3
+        NotificationTemplate.Parent = Notifications
+        addCorner(NotificationTemplate, 8)
+        addStroke(NotificationTemplate, 2, Colors.Primary)
+        
+        -- Icon
+        local Icon = Instance.new("ImageLabel")
+        Icon.Size = UDim2.new(0, 24, 0, 24)
+        Icon.Position = UDim2.new(0, 12, 0, 12)
+        Icon.BackgroundTransparency = 1
+        Icon.Image = GetIcon(data.Icon, data.ImageSource)
+        Icon.ImageColor3 = Colors.Text
+        Icon.Parent = NotificationTemplate
+        
+        -- Title
+        local Title = Instance.new("TextLabel")
+        Title.Size = UDim2.new(1, -50, 0, 20)
+        Title.Position = UDim2.new(0, 45, 0, 10)
+        Title.Text = data.Title
+        Title.TextSize = 14
+        Title.Font = Enum.Font.GothamBold
+        Title.TextColor3 = Colors.Text
+        Title.BackgroundTransparency = 1
+        Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.Parent = NotificationTemplate
+        
+        -- Content
+        local Content = Instance.new("TextLabel")
+        Content.Size = UDim2.new(1, -50, 0, 40)
+        Content.Position = UDim2.new(0, 45, 0, 30)
+        Content.Text = data.Content
+        Content.TextSize = 12
+        Content.Font = Enum.Font.Gotham
+        Content.TextColor3 = Colors.Text
+        Content.BackgroundTransparency = 1
+        Content.TextXAlignment = Enum.TextXAlignment.Left
+        Content.TextWrapped = true
+        Content.TextYAlignment = Enum.TextYAlignment.Top
+        Content.Parent = NotificationTemplate
+        
+        -- Close button
+        local CloseButton = Instance.new("TextButton")
+        CloseButton.Size = UDim2.new(0, 20, 0, 20)
+        CloseButton.Position = UDim2.new(1, -25, 0, 8)
+        CloseButton.Text = "×"
+        CloseButton.TextSize = 16
+        CloseButton.Font = Enum.Font.GothamBold
+        CloseButton.TextColor3 = Colors.Text
+        CloseButton.BackgroundColor3 = Colors.Danger
+        CloseButton.BackgroundTransparency = 0.7
+        CloseButton.Parent = NotificationTemplate
+        addCorner(CloseButton, 4)
+        
+        -- Auto-calculate size based on content
+        local textSize = game:GetService("TextService"):GetTextSize(
+            data.Content,
+            12,
+            Enum.Font.Gotham,
+            Vector2.new(Content.AbsoluteSize.X, math.huge)
+        )
+        
+        local requiredHeight = math.max(80, textSize.Y + 50)
+        NotificationTemplate.Size = UDim2.new(1, 0, 0, requiredHeight)
+        Content.Size = UDim2.new(1, -50, 0, requiredHeight - 40)
+        
+        -- Animation in
+        NotificationTemplate.Position = UDim2.new(1, 0, 0, 0)
+        NotificationTemplate.BackgroundTransparency = 1
+        Title.TextTransparency = 1
+        Content.TextTransparency = 1
+        Icon.ImageTransparency = 1
+        CloseButton.BackgroundTransparency = 1
+        CloseButton.TextTransparency = 1
+        
+        TweenService:Create(NotificationTemplate, TweenInfo.new(0.3), {
+            Position = UDim2.new(0, 0, 0, 0),
+            BackgroundTransparency = 0.3
+        }):Play()
+        
+        TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
+        TweenService:Create(CloseButton, TweenInfo.new(0.3), {
+            BackgroundTransparency = 0.7,
+            TextTransparency = 0
+        }):Play()
+        
+        -- Close button functionality
+        CloseButton.MouseButton1Click:Connect(function()
+            Library:CloseNotification(NotificationTemplate)
+        end)
+        
+        -- Auto-close after duration
+        local autoClose = task.delay(data.Duration, function()
+            Library:CloseNotification(NotificationTemplate)
+        end)
+        
+        -- Store reference for manual closing
+        NotificationTemplate.Close = function()
+            task.cancel(autoClose)
+            Library:CloseNotification(NotificationTemplate)
+        end
+    end)
+end
+
+function Library:CloseNotification(notification)
+    TweenService:Create(notification, TweenInfo.new(0.3), {
+        Position = UDim2.new(1, 0, 0, 0),
+        BackgroundTransparency = 1
+    }):Play()
+    
+    for _, child in pairs(notification:GetChildren()) do
+        if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("ImageLabel") then
+            TweenService:Create(child, TweenInfo.new(0.3), {
+                TextTransparency = 1,
+                ImageTransparency = 1,
+                BackgroundTransparency = 1
+            }):Play()
+        end
+    end
+    
+    task.wait(0.3)
+    notification:Destroy()
+end
+
+function Library:ClearAllNotifications()
+    for _, notification in pairs(Notifications:GetChildren()) do
+        if notification:IsA("Frame") and notification.Name ~= "UIListLayout" then
+            notification:Destroy()
+        end
+    end
+end
+
+-- Predefined notification types for convenience
+function Library:NotifySuccess(title, content, duration)
+    return self:Notification({
+        Title = title or "Success",
+        Content = content or "Operation completed successfully",
+        Icon = "check_circle",
+        Duration = duration or 3
+    })
+end
+
+function Library:NotifyError(title, content, duration)
+    return self:Notification({
+        Title = title or "Error",
+        Content = content or "An error occurred",
+        Icon = "error",
+        Duration = duration or 5
+    })
+end
+
+function Library:NotifyWarning(title, content, duration)
+    return self:Notification({
+        Title = title or "Warning",
+        Content = content or "Warning message",
+        Icon = "warning",
+        Duration = duration or 4
+    })
+end
+
+function Library:NotifyInfo(title, content, duration)
+    return self:Notification({
+        Title = title or "Information",
+        Content = content or "Information message",
+        Icon = "info",
+        Duration = duration or 4
+    })
+end
+
 return Library
