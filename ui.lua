@@ -1220,6 +1220,9 @@ NotificationsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 NotificationsLayout.Padding = UDim.new(0, 10)
 NotificationsLayout.Parent = Notifications
 
+-- Store active notifications for management
+Library.ActiveNotifications = {}
+
 -- Icon Module (Material Icons from Luna)
 -- Replace your existing IconModule with this complete version
 local IconModule = {
@@ -1415,8 +1418,13 @@ function Library:Notification(data)
         NotificationTemplate.BackgroundColor3 = Colors.DarkPrimary
         NotificationTemplate.BackgroundTransparency = 0.3
         NotificationTemplate.Parent = Notifications
+        NotificationTemplate.ClipsDescendants = true
         addCorner(NotificationTemplate, 8)
         addStroke(NotificationTemplate, 2, Colors.Primary)
+        
+        -- Store reference
+        local notificationId = #Library.ActiveNotifications + 1
+        Library.ActiveNotifications[notificationId] = NotificationTemplate
         
         -- Icon
         local Icon = Instance.new("ImageLabel")
@@ -1478,8 +1486,8 @@ function Library:Notification(data)
         NotificationTemplate.Size = UDim2.new(1, 0, 0, requiredHeight)
         Content.Size = UDim2.new(1, -50, 0, requiredHeight - 40)
         
-        -- Animation in
-        NotificationTemplate.Position = UDim2.new(1, 0, 0, 0)
+        -- Animation in (slide from right)
+        NotificationTemplate.Position = UDim2.new(1, 0, 0, 0) -- Start off-screen to the right
         NotificationTemplate.BackgroundTransparency = 1
         Title.TextTransparency = 1
         Content.TextTransparency = 1
@@ -1487,7 +1495,8 @@ function Library:Notification(data)
         CloseButton.BackgroundTransparency = 1
         CloseButton.TextTransparency = 1
         
-        TweenService:Create(NotificationTemplate, TweenInfo.new(0.3), {
+        -- Slide in animation
+        TweenService:Create(NotificationTemplate, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Position = UDim2.new(0, 0, 0, 0),
             BackgroundTransparency = 0.3
         }):Play()
@@ -1502,48 +1511,67 @@ function Library:Notification(data)
         
         -- Close button functionality
         CloseButton.MouseButton1Click:Connect(function()
-            Library:CloseNotification(NotificationTemplate)
+            Library:CloseNotification(NotificationTemplate, notificationId)
         end)
         
         -- Auto-close after duration
         local autoClose = task.delay(data.Duration, function()
-            Library:CloseNotification(NotificationTemplate)
+            Library:CloseNotification(NotificationTemplate, notificationId)
         end)
         
         -- Store reference for manual closing
         NotificationTemplate.Close = function()
             task.cancel(autoClose)
-            Library:CloseNotification(NotificationTemplate)
+            Library:CloseNotification(NotificationTemplate, notificationId)
+        end
+        
+        return NotificationTemplate
+    end)
+end
+
+function Library:CloseNotification(notification, notificationId)
+    if not notification or notification.Parent == nil then return end
+    
+    -- Remove from active notifications
+    if notificationId then
+        Library.ActiveNotifications[notificationId] = nil
+    end
+    
+    -- Slide out animation (slide to the right)
+    TweenService:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Position = UDim2.new(1, 0, 0, 0), -- Move off-screen to the right
+        BackgroundTransparency = 1
+    }):Play()
+    
+    -- Fade out all children
+    for _, child in pairs(notification:GetChildren()) do
+        if child:IsA("TextLabel") then
+            TweenService:Create(child, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+        elseif child:IsA("TextButton") then
+            TweenService:Create(child, TweenInfo.new(0.3), {
+                TextTransparency = 1,
+                BackgroundTransparency = 1
+            }):Play()
+        elseif child:IsA("ImageLabel") then
+            TweenService:Create(child, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
+        end
+    end
+    
+    -- Destroy after animation completes
+    task.delay(0.35, function()
+        if notification and notification.Parent then
+            notification:Destroy()
         end
     end)
 end
 
-function Library:CloseNotification(notification)
-    TweenService:Create(notification, TweenInfo.new(0.3), {
-        Position = UDim2.new(1, 0, 0, 0),
-        BackgroundTransparency = 1
-    }):Play()
-    
-    for _, child in pairs(notification:GetChildren()) do
-        if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("ImageLabel") then
-            TweenService:Create(child, TweenInfo.new(0.3), {
-                TextTransparency = 1,
-                ImageTransparency = 1,
-                BackgroundTransparency = 1
-            }):Play()
-        end
-    end
-    
-    task.wait(0.3)
-    notification:Destroy()
-end
-
 function Library:ClearAllNotifications()
-    for _, notification in pairs(Notifications:GetChildren()) do
-        if notification:IsA("Frame") and notification.Name ~= "UIListLayout" then
-            notification:Destroy()
+    for id, notification in pairs(Library.ActiveNotifications) do
+        if notification and notification.Parent then
+            self:CloseNotification(notification, id)
         end
     end
+    Library.ActiveNotifications = {}
 end
 
 -- Predefined notification types for convenience
