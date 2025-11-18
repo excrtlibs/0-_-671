@@ -243,17 +243,110 @@ function Library:CreateUI(title, description)
         BackgroundOverlay.Visible = not BackgroundOverlay.Visible
     end)
 
-    local ToggleButton = Instance.new("ImageButton")
-    ToggleButton.Size = UDim2.new(0, 50, 0, 50)
-    ToggleButton.Position = UDim2.new(0.14, 0, 0.1, 0)
-    ToggleButton.BackgroundColor3 = Colors.Primary
-    ToggleButton.BackgroundTransparency = 0.8 -- Increased transparency
-    ToggleButton.Image = "rbxassetid://123500046281559" -- Replace with your image ID (Texture)
-    ToggleButton.ScaleType = Enum.ScaleType.Fit
-    ToggleButton.Draggable = true
-    ToggleButton.Parent = ScreenGui
-    addCorner(ToggleButton, 8)
-    addStroke(ToggleButton, 2)
+local ToggleButton = Instance.new("ImageButton")
+ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+ToggleButton.Position = UDim2.new(0.14, 0, 0.1, 0)
+ToggleButton.BackgroundColor3 = Colors.Primary
+ToggleButton.BackgroundTransparency = 0.8
+ToggleButton.Image = "rbxassetid://123500046281559"
+ToggleButton.ScaleType = Enum.ScaleType.Fit
+ToggleButton.Draggable = true
+ToggleButton.Parent = ScreenGui
+addCorner(ToggleButton, 8)
+
+-- Add gradient border to the open/close toggle button
+local borderFrame = Instance.new("Frame")
+borderFrame.Size = UDim2.new(1, 0, 1, 0)
+borderFrame.Position = UDim2.new(0, 0, 0, 0)
+borderFrame.BackgroundTransparency = 1
+borderFrame.ZIndex = ToggleButton.ZIndex - 1
+borderFrame.Parent = ToggleButton
+
+local borderStroke = Instance.new("UIStroke")
+borderStroke.Thickness = 3
+borderStroke.Color = Color3.new(1, 1, 1)
+borderStroke.Transparency = 0
+borderStroke.Parent = borderFrame
+
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 0, 51)),
+    ColorSequenceKeypoint.new(0.3, Color3.fromRGB(45, 0, 90)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(75, 0, 130)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 0, 51))
+}
+gradient.Rotation = 0
+gradient.Parent = borderStroke
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(1, 0)
+frameCorner.Parent = borderFrame
+
+-- Animate the gradient rotation
+local function rotateGradient()
+    while borderFrame and borderFrame.Parent do
+        gradient.Rotation = (gradient.Rotation + 1) % 360
+        task.wait(0.05)
+    end
+end
+
+-- Start gradient rotation
+spawn(rotateGradient)
+
+-- Interactive effects for the toggle button
+local originalThickness = borderStroke.Thickness
+
+ToggleButton.MouseEnter:Connect(function()
+    borderStroke.Thickness = 4
+    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 55, 0, 55)}):Play()
+end)
+
+ToggleButton.MouseLeave:Connect(function()
+    borderStroke.Thickness = originalThickness
+    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+end)
+
+ToggleButton.MouseButton1Down:Connect(function()
+    borderStroke.Thickness = 5
+end)
+
+ToggleButton.MouseButton1Up:Connect(function()
+    borderStroke.Thickness = 4
+end)
+
+local isActive = true
+ToggleButton.MouseButton1Click:Connect(function()
+    isActive = not isActive
+    MainFrame.Visible = isActive
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://10066968815"
+    sound.Parent = ToggleButton
+    sound:Play()
+    
+    -- Enhanced click animation with gradient effect
+    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+    TweenService:Create(borderStroke, TweenInfo.new(0.2), {Thickness = 6}):Play()
+    task.wait(0.2)
+    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+    TweenService:Create(borderStroke, TweenInfo.new(0.2), {Thickness = originalThickness}):Play()
+    
+    -- Change gradient colors when UI is open/closed
+    if isActive then
+        -- UI is open - brighter gradient
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 0, 90)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 50, 200)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 0, 90))
+        }
+    else
+        -- UI is closed - darker gradient
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 0, 51)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60, 20, 120)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 0, 51))
+        }
+    end
+end)
 
     local isActive = true
     ToggleButton.MouseButton1Click:Connect(function()
