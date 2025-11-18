@@ -243,110 +243,17 @@ function Library:CreateUI(title, description)
         BackgroundOverlay.Visible = not BackgroundOverlay.Visible
     end)
 
-local ToggleButton = Instance.new("ImageButton")
-ToggleButton.Size = UDim2.new(0, 50, 0, 50)
-ToggleButton.Position = UDim2.new(0.14, 0, 0.1, 0)
-ToggleButton.BackgroundColor3 = Colors.Primary
-ToggleButton.BackgroundTransparency = 0.8
-ToggleButton.Image = "rbxassetid://123500046281559"
-ToggleButton.ScaleType = Enum.ScaleType.Fit
-ToggleButton.Draggable = true
-ToggleButton.Parent = ScreenGui
-addCorner(ToggleButton, 8)
-
--- Add gradient border to the open/close toggle button
-local borderFrame = Instance.new("Frame")
-borderFrame.Size = UDim2.new(1, 0, 1, 0)
-borderFrame.Position = UDim2.new(0, 0, 0, 0)
-borderFrame.BackgroundTransparency = 1
-borderFrame.ZIndex = ToggleButton.ZIndex - 1
-borderFrame.Parent = ToggleButton
-
-local borderStroke = Instance.new("UIStroke")
-borderStroke.Thickness = 3
-borderStroke.Color = Color3.new(1, 1, 1)
-borderStroke.Transparency = 0
-borderStroke.Parent = borderFrame
-
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 0, 51)),
-    ColorSequenceKeypoint.new(0.3, Color3.fromRGB(45, 0, 90)),
-    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(75, 0, 130)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 0, 51))
-}
-gradient.Rotation = 0
-gradient.Parent = borderStroke
-
-local frameCorner = Instance.new("UICorner")
-frameCorner.CornerRadius = UDim.new(1, 0)
-frameCorner.Parent = borderFrame
-
--- Animate the gradient rotation
-local function rotateGradient()
-    while borderFrame and borderFrame.Parent do
-        gradient.Rotation = (gradient.Rotation + 1) % 360
-        task.wait(0.05)
-    end
-end
-
--- Start gradient rotation
-spawn(rotateGradient)
-
--- Interactive effects for the toggle button
-local originalThickness = borderStroke.Thickness
-
-ToggleButton.MouseEnter:Connect(function()
-    borderStroke.Thickness = 4
-    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 55, 0, 55)}):Play()
-end)
-
-ToggleButton.MouseLeave:Connect(function()
-    borderStroke.Thickness = originalThickness
-    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)}):Play()
-end)
-
-ToggleButton.MouseButton1Down:Connect(function()
-    borderStroke.Thickness = 5
-end)
-
-ToggleButton.MouseButton1Up:Connect(function()
-    borderStroke.Thickness = 4
-end)
-
-local isActive = true
-ToggleButton.MouseButton1Click:Connect(function()
-    isActive = not isActive
-    MainFrame.Visible = isActive
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://10066968815"
-    sound.Parent = ToggleButton
-    sound:Play()
-    
-    -- Enhanced click animation with gradient effect
-    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 60, 0, 60)}):Play()
-    TweenService:Create(borderStroke, TweenInfo.new(0.2), {Thickness = 6}):Play()
-    task.wait(0.2)
-    TweenService:Create(ToggleButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)}):Play()
-    TweenService:Create(borderStroke, TweenInfo.new(0.2), {Thickness = originalThickness}):Play()
-    
-    -- Change gradient colors when UI is open/closed
-    if isActive then
-        -- UI is open - brighter gradient
-        gradient.Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 0, 90)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 50, 200)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(45, 0, 90))
-        }
-    else
-        -- UI is closed - darker gradient
-        gradient.Color = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 0, 51)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(60, 20, 120)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 0, 51))
-        }
-    end
-end)
+    local ToggleButton = Instance.new("ImageButton")
+    ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+    ToggleButton.Position = UDim2.new(0.14, 0, 0.1, 0)
+    ToggleButton.BackgroundColor3 = Colors.Primary
+    ToggleButton.BackgroundTransparency = 0.8 -- Increased transparency
+    ToggleButton.Image = "rbxassetid://123500046281559" -- Replace with your image ID (Texture)
+    ToggleButton.ScaleType = Enum.ScaleType.Fit
+    ToggleButton.Draggable = true
+    ToggleButton.Parent = ScreenGui
+    addCorner(ToggleButton, 8)
+    addStroke(ToggleButton, 2)
 
     local isActive = true
     ToggleButton.MouseButton1Click:Connect(function()
@@ -1300,7 +1207,9 @@ function Library.AddKeybind(container, text, defaultKey, callback)
     end)
 end
 
--- Notification System
+-- Remove all the predefined notification types at the bottom and replace with this:
+
+-- Notification System (Simplified)
 local Notifications = Instance.new("Frame")
 Notifications.Name = "Notifications"
 Notifications.Size = UDim2.new(0, 400, 1, -20)
@@ -1317,7 +1226,6 @@ NotificationsLayout.Parent = Notifications
 Library.ActiveNotifications = {}
 
 -- Icon Module (Material Icons from Luna)
--- Replace your existing IconModule with this complete version
 local IconModule = {
     Material = {
         -- Info & Status
@@ -1495,15 +1403,42 @@ local function Kwargify(defaults, passed)
     return passed
 end
 
-function Library:Notification(data)
+-- Overload function to handle different parameter formats
+function Library:Notify(...)
+    local args = {...}
+    local data
+    
+    -- Handle different calling formats
+    if type(args[1]) == "table" then
+        -- Table format: Library:Notify({Title = "Hello", Content = "World"})
+        data = args[1]
+    elseif type(args[1]) == "string" and type(args[2]) == "string" then
+        -- Simple format: Library:Notify("Title", "Content", 5)
+        data = {
+            Title = args[1],
+            Content = args[2],
+            Duration = args[3] or 5
+        }
+    elseif type(args[1]) == "string" then
+        -- Minimal format: Library:Notify("Message")
+        data = {
+            Title = "Notification",
+            Content = args[1],
+            Duration = args[2] or 5
+        }
+    else
+        -- Default
+        data = {}
+    end
+    
     task.spawn(function()
         data = Kwargify({
             Title = "Notification",
             Content = "This is a notification",
-            Icon = "info",
+            Icon = nil, -- No icon by default
             ImageSource = "Material",
             Duration = 5
-        }, data or {})
+        }, data)
         
         -- Create notification template
         local NotificationTemplate = Instance.new("Frame")
@@ -1519,19 +1454,22 @@ function Library:Notification(data)
         local notificationId = #Library.ActiveNotifications + 1
         Library.ActiveNotifications[notificationId] = NotificationTemplate
         
-        -- Icon
-        local Icon = Instance.new("ImageLabel")
-        Icon.Size = UDim2.new(0, 24, 0, 24)
-        Icon.Position = UDim2.new(0, 12, 0, 12)
-        Icon.BackgroundTransparency = 1
-        Icon.Image = GetIcon(data.Icon, data.ImageSource)
-        Icon.ImageColor3 = Colors.Text
-        Icon.Parent = NotificationTemplate
+        -- Icon (only if provided)
+        local Icon
+        if data.Icon then
+            Icon = Instance.new("ImageLabel")
+            Icon.Size = UDim2.new(0, 24, 0, 24)
+            Icon.Position = UDim2.new(0, 12, 0, 12)
+            Icon.BackgroundTransparency = 1
+            Icon.Image = GetIcon(data.Icon, data.ImageSource)
+            Icon.ImageColor3 = Colors.Text
+            Icon.Parent = NotificationTemplate
+        end
         
         -- Title
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(1, -50, 0, 20)
-        Title.Position = UDim2.new(0, 45, 0, 10)
+        Title.Size = UDim2.new(1, data.Icon and -50 or -30, 0, 20)
+        Title.Position = UDim2.new(0, data.Icon and 45 or 15, 0, 10)
         Title.Text = data.Title
         Title.TextSize = 14
         Title.Font = Enum.Font.GothamBold
@@ -1542,8 +1480,8 @@ function Library:Notification(data)
         
         -- Content
         local Content = Instance.new("TextLabel")
-        Content.Size = UDim2.new(1, -50, 0, 40)
-        Content.Position = UDim2.new(0, 45, 0, 30)
+        Content.Size = UDim2.new(1, data.Icon and -50 or -30, 0, 40)
+        Content.Position = UDim2.new(0, data.Icon and 45 or 15, 0, 30)
         Content.Text = data.Content
         Content.TextSize = 12
         Content.Font = Enum.Font.Gotham
@@ -1577,14 +1515,16 @@ function Library:Notification(data)
         
         local requiredHeight = math.max(80, textSize.Y + 50)
         NotificationTemplate.Size = UDim2.new(1, 0, 0, requiredHeight)
-        Content.Size = UDim2.new(1, -50, 0, requiredHeight - 40)
+        Content.Size = UDim2.new(1, data.Icon and -50 or -30, 0, requiredHeight - 40)
         
         -- Animation in (slide from right)
         NotificationTemplate.Position = UDim2.new(1, 0, 0, 0) -- Start off-screen to the right
         NotificationTemplate.BackgroundTransparency = 1
         Title.TextTransparency = 1
         Content.TextTransparency = 1
-        Icon.ImageTransparency = 1
+        if Icon then
+            Icon.ImageTransparency = 1
+        end
         CloseButton.BackgroundTransparency = 1
         CloseButton.TextTransparency = 1
         
@@ -1596,7 +1536,9 @@ function Library:Notification(data)
         
         TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
         TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-        TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
+        if Icon then
+            TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
+        end
         TweenService:Create(CloseButton, TweenInfo.new(0.3), {
             BackgroundTransparency = 0.7,
             TextTransparency = 0
@@ -1665,43 +1607,6 @@ function Library:ClearAllNotifications()
         end
     end
     Library.ActiveNotifications = {}
-end
-
--- Predefined notification types for convenience
-function Library:NotifySuccess(title, content, duration)
-    return self:Notification({
-        Title = title or "Success",
-        Content = content or "Operation completed successfully",
-        Icon = "check_circle",
-        Duration = duration or 3
-    })
-end
-
-function Library:NotifyError(title, content, duration)
-    return self:Notification({
-        Title = title or "Error",
-        Content = content or "An error occurred",
-        Icon = "error",
-        Duration = duration or 5
-    })
-end
-
-function Library:NotifyWarning(title, content, duration)
-    return self:Notification({
-        Title = title or "Warning",
-        Content = content or "Warning message",
-        Icon = "warning",
-        Duration = duration or 4
-    })
-end
-
-function Library:NotifyInfo(title, content, duration)
-    return self:Notification({
-        Title = title or "Information",
-        Content = content or "Information message",
-        Icon = "info",
-        Duration = duration or 4
-    })
 end
 
 return Library
