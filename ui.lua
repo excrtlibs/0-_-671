@@ -965,61 +965,73 @@ function Library.addTextbox(container, labelText, placeholderText, defaultText, 
     end)
 end
 
-function Library.addParagraph1(container, title, description, imageId)
-    if not container then
-        error("Container is nil. Please provide a valid container for the section.")
-    end
-
-    -- Main Section Frame
-    local Section = Instance.new("Frame")
-    Section.Size = UDim2.new(1, 0, 0, 150) -- Increased height for thumbnail
-    Section.BackgroundColor3 = Colors.DarkPrimary
-    Section.BackgroundTransparency = 0.7
-    Section.Parent = container
-    addCorner(Section, 6)
-
-    -- Section Title (Left-aligned, bigger text)
-    local SectionLabel = Instance.new("TextLabel")
-    SectionLabel.Size = UDim2.new(1, -20, 0, 25) -- Full width with padding
-    SectionLabel.Position = UDim2.new(0, 10, 0, 5) -- Left-aligned with padding
-    SectionLabel.Text = title or "Section"
-    SectionLabel.TextSize = 18 -- Slightly bigger than description
-    SectionLabel.Font = Enum.Font.GothamBold
-    SectionLabel.TextColor3 = Colors.Text
-    SectionLabel.BackgroundTransparency = 1
-    SectionLabel.TextXAlignment = Enum.TextXAlignment.Left -- Left alignment
-    SectionLabel.TextWrapped = true -- Wrap long titles
-    SectionLabel.Parent = Section
-
-    -- Thumbnail Image (below title)
-    local Thumbnail = Instance.new("ImageLabel")
-    Thumbnail.Size = UDim2.new(0, 80, 0, 80) -- Square thumbnail size
-    Thumbnail.Position = UDim2.new(0, 10, 0, 35) -- Below title
-    Thumbnail.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- Background for transparency
-    Thumbnail.BackgroundTransparency = 0.3
-    Thumbnail.BorderSizePixel = 0
+function Library.addLivePlayerInfo(container)
+    local Players = game:GetService("Players")
+    local Stats = game:GetService("Stats")
+    local RunService = game:GetService("RunService")
     
-    if imageId then
-        Thumbnail.Image = imageId -- Use provided image ID
-    else
-        Thumbnail.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png" -- Default placeholder
-    end
-    
-    addCorner(Thumbnail, 4) -- Slightly rounded corners for thumbnail
-    Thumbnail.Parent = Section
+    local player = Players.LocalPlayer
+    repeat task.wait() until player and player.UserId > 0
 
-    -- Description Label (moved to right of thumbnail)
-    local DescLabel = Instance.new("TextLabel")
-    DescLabel.Size = UDim2.new(1, -100, 0, 80) -- Adjusted width to account for thumbnail
-    DescLabel.Position = UDim2.new(0, 100, 0, 35) -- Positioned to right of thumbnail
-    DescLabel.Text = description or "Description goes here."
-    DescLabel.TextSize = 14
-    DescLabel.Font = Enum.Font.Gotham
-    DescLabel.TextColor3 = Colors.Text
-    DescLabel.BackgroundTransparency = 1
-    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
-    DescLabel.TextWrapped = true -- Ensures text wraps to multiple lines
-    DescLabel.Parent = Section
+    -- Create the paragraph once
+    local section = Instance.new("Frame")
+    section.Size = UDim2.new(1, 0, 0, 150)
+    section.BackgroundColor3 = Colors.DarkPrimary
+    section.BackgroundTransparency = 0.7
+    section.Parent = container
+    addCorner(section, 6)
+
+    -- Thumbnail (headshot)
+    local thumb = Instance.new("ImageLabel")
+    thumb.Size = UDim2.new(0, 80, 0, 80)
+    thumb.Position = UDim2.new(0, 10, 0, 35)
+    thumb.BackgroundTransparency = 1
+    thumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=80&h=80"
+    thumb.Parent = section
+    addCorner(thumb, 40)
+
+    -- Live text label
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, -100, 0, 80)
+    textLabel.Position = UDim2.new(0, 100, 0, 35)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Colors.Text
+    textLabel.TextSize = 14
+    textLabel.Font = Enum.Font.Gotham
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.TextYAlignment = Enum.TextYAlignment.Top
+    textLabel.TextWrapped = true
+    textLabel.Parent = section
+
+    -- Title label (optional)
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -20, 0, 25)
+    title.Position = UDim2.new(0, 10, 0, 5)
+    title.Text = "Player Info"
+    title.TextSize = 18
+    title.Font = Enum.Font.GothamBold
+    title.TextColor3 = Colors.Text
+    title.BackgroundTransparency = 1
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = section
+
+    -- Live update loop
+    task.spawn(function()
+        while task.wait(1) do
+            local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue() + 0.5)
+            local fps = math.floor(1 / RunService.Heartbeat:Wait())
+
+            textLabel.Text = string.format(
+                "Good evening, %s\n@%s\nPing: %dms • FPS: %d",
+                player.DisplayName,
+                player.Name,
+                ping,
+                fps
+            )
+        end
+    end)
+
+    return section
 end
 
 function Library.addParagraph2(container, title, description)
