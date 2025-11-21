@@ -1034,6 +1034,63 @@ function Library.addLivePlayerInfo(container)
     return section
 end
 
+function Library.addParagraph1(container, title, description, imageId)
+    if not container then
+        error("Container is nil. Please provide a valid container for the section.")
+    end
+
+    -- Main Section Frame
+    local Section = Instance.new("Frame")
+    Section.Size = UDim2.new(1, 0, 0, 150) -- Increased height for thumbnail
+    Section.BackgroundColor3 = Colors.DarkPrimary
+    Section.BackgroundTransparency = 0.7
+    Section.Parent = container
+    addCorner(Section, 6)
+
+    -- Section Title (Left-aligned, bigger text)
+    local SectionLabel = Instance.new("TextLabel")
+    SectionLabel.Size = UDim2.new(1, -20, 0, 25) -- Full width with padding
+    SectionLabel.Position = UDim2.new(0, 10, 0, 5) -- Left-aligned with padding
+    SectionLabel.Text = title or "Section"
+    SectionLabel.TextSize = 18 -- Slightly bigger than description
+    SectionLabel.Font = Enum.Font.GothamBold
+    SectionLabel.TextColor3 = Colors.Text
+    SectionLabel.BackgroundTransparency = 1
+    SectionLabel.TextXAlignment = Enum.TextXAlignment.Left -- Left alignment
+    SectionLabel.TextWrapped = true -- Wrap long titles
+    SectionLabel.Parent = Section
+
+    -- Thumbnail Image (below title)
+    local Thumbnail = Instance.new("ImageLabel")
+    Thumbnail.Size = UDim2.new(0, 80, 0, 80) -- Square thumbnail size
+    Thumbnail.Position = UDim2.new(0, 10, 0, 35) -- Below title
+    Thumbnail.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- Background for transparency
+    Thumbnail.BackgroundTransparency = 0.3
+    Thumbnail.BorderSizePixel = 0
+    
+    if imageId then
+        Thumbnail.Image = imageId -- Use provided image ID
+    else
+        Thumbnail.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png" -- Default placeholder
+    end
+    
+    addCorner(Thumbnail, 4) -- Slightly rounded corners for thumbnail
+    Thumbnail.Parent = Section
+
+    -- Description Label (moved to right of thumbnail)
+    local DescLabel = Instance.new("TextLabel")
+    DescLabel.Size = UDim2.new(1, -100, 0, 80) -- Adjusted width to account for thumbnail
+    DescLabel.Position = UDim2.new(0, 100, 0, 35) -- Positioned to right of thumbnail
+    DescLabel.Text = description or "Description goes here."
+    DescLabel.TextSize = 14
+    DescLabel.Font = Enum.Font.Gotham
+    DescLabel.TextColor3 = Colors.Text
+    DescLabel.BackgroundTransparency = 1
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DescLabel.TextWrapped = true -- Ensures text wraps to multiple lines
+    DescLabel.Parent = Section
+end
+
 function Library.addParagraph2(container, title, description)
     if not container then
         error("Container is nil. Please provide a valid container for the section.")
