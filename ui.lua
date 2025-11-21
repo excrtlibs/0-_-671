@@ -986,7 +986,7 @@ function Library.addLivePlayerInfo(container)
     thumb.Size = UDim2.new(0, 80, 0, 80)
     thumb.Position = UDim2.new(0, 10, 0, 35)
     thumb.BackgroundTransparency = 1
-    thumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=80&h=80"
+    thumb.Image = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=420&h=420"
     thumb.Parent = section
     addCorner(thumb, 40)
 
