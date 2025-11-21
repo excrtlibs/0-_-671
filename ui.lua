@@ -40,88 +40,6 @@ local function addStroke(instance, thickness, color)
     stroke.Parent = instance
 end
 
--- Glow Effect System
-local function createGlowEffect(parentFrame, glowColor, intensity, blurSize)
-    local glowContainer = Instance.new("Frame")
-    glowContainer.Size = UDim2.new(1, 20, 1, 20) -- Slightly larger than parent
-    glowContainer.Position = UDim2.new(0, -10, 0, -10)
-    glowContainer.BackgroundTransparency = 1
-    glowContainer.ClipsDescendants = false
-    glowContainer.Parent = parentFrame
-    
-    -- Multiple layers for glow effect
-    local glowLayers = {}
-    local layerCount = 3
-    
-    for i = 1, layerCount do
-        local glowLayer = Instance.new("Frame")
-        glowLayer.Size = UDim2.new(1, 0, 1, 0)
-        glowLayer.Position = UDim2.new(0, 0, 0, 0)
-        glowLayer.BackgroundColor3 = glowColor or Colors.Primary
-        glowLayer.BackgroundTransparency = 0.9 - (i * 0.2) -- Decreasing transparency
-        glowLayer.Parent = glowContainer
-        addCorner(glowLayer, 8 + (i * 2)) -- Increasing corner radius
-        
-        -- Add blur effect using multiple UIStrokes
-        for j = 1, 3 do
-            local glowStroke = Instance.new("UIStroke")
-            glowStroke.Color = glowColor or Colors.Primary
-            glowStroke.Thickness = (i * 2) + (j * 1.5)
-            glowStroke.Transparency = 0.7 - (i * 0.1)
-            glowStroke.Parent = glowLayer
-        end
-        
-        table.insert(glowLayers, glowLayer)
-    end
-    
-    -- Pulsing animation
-    local pulseConnection
-    local function startPulse()
-        if pulseConnection then pulseConnection:Disconnect() end
-        
-        pulseConnection = game:GetService("RunService").Heartbeat:Connect(function(delta)
-            local pulse = (math.sin(tick() * 2) + 1) / 2 -- 0 to 1
-            local pulseIntensity = 0.1 + (pulse * 0.15)
-            
-            for i, layer in ipairs(glowLayers) do
-                local targetTransparency = 0.85 - (i * 0.15) - pulseIntensity
-                layer.BackgroundTransparency = math.clamp(targetTransparency, 0.3, 0.9)
-                
-                -- Update strokes
-                for _, stroke in ipairs(layer:GetChildren()) do
-                    if stroke:IsA("UIStroke") then
-                        stroke.Transparency = 0.6 - (i * 0.1) - (pulseIntensity * 0.5)
-                    end
-                end
-            end
-        end)
-    end
-    
-    -- Start pulsing
-    startPulse()
-    
-    return {
-        Container = glowContainer,
-        StopPulse = function()
-            if pulseConnection then
-                pulseConnection:Disconnect()
-                pulseConnection = nil
-            end
-        end,
-        RestartPulse = startPulse,
-        UpdateColor = function(newColor)
-            for _, layer in ipairs(glowLayers) do
-                layer.BackgroundColor3 = newColor
-                for _, stroke in ipairs(layer:GetChildren()) do
-                    if stroke:IsA("UIStroke") then
-                        stroke.Color = newColor
-                    end
-                end
-            end
-        end
-    }
-end
-
 -- Main UI Creation
 function Library:CreateUI(title, description)
     local ScreenGui = Instance.new("ScreenGui")
@@ -142,10 +60,6 @@ function Library:CreateUI(title, description)
     addCorner(MainFrame, 8)
     addStroke(MainFrame, 2)
 
-    -- Add glowing effect to main frame
-    local mainGlow = createGlowEffect(MainFrame, Colors.Primary, 0.3, 10)
-    mainGlow.Container.ZIndex = -1 -- Ensure glow is behind the main content
-
     local TopBar = Instance.new("Frame")
     TopBar.Size = UDim2.new(1, 0, 0, 60) -- Увеличена высота для размещения описания
     TopBar.BackgroundColor3 = Colors.DarkPrimary
@@ -153,10 +67,6 @@ function Library:CreateUI(title, description)
     TopBar.ZIndex = 10
     TopBar.Parent = MainFrame
     addCorner(TopBar, 6)
-
-    -- Add glow to top bar
-    local topBarGlow = createGlowEffect(TopBar, Colors.LightPrimary, 0.2, 5)
-    topBarGlow.Container.ZIndex = 9
 
     local ResizeButton = Instance.new("TextButton")
     ResizeButton.Size = UDim2.new(0, 24, 0, 24)
@@ -170,10 +80,6 @@ function Library:CreateUI(title, description)
     ResizeButton.ZIndex = 15
     ResizeButton.Parent = MainFrame
     addCorner(ResizeButton, 4)
-
-    -- Add glow to resize button
-    local resizeGlow = createGlowEffect(ResizeButton, Colors.LightPrimary, 0.4, 3)
-    resizeGlow.Container.ZIndex = 14
 
     local dragging, startPos, startSize
     ResizeButton.InputBegan:Connect(function(input)
@@ -215,10 +121,6 @@ function Library:CreateUI(title, description)
     addCorner(SettingsFrame, 8)
     addStroke(SettingsFrame, 2)
 
-    -- Add glow to settings frame
-    local settingsGlow = createGlowEffect(SettingsFrame, Colors.Primary, 0.3, 8)
-    settingsGlow.Container.ZIndex = 18
-
     local SettingsLabel = Instance.new("TextLabel")
     SettingsLabel.Size = UDim2.new(1, 0, 0, 40)
     SettingsLabel.Text = "Settings"
@@ -250,10 +152,6 @@ function Library:CreateUI(title, description)
     DestroyButton.Parent = TopBar
     addCorner(DestroyButton, 6)
 
-    -- Add glow to destroy button
-    local destroyGlow = createGlowEffect(DestroyButton, Colors.Danger, 0.4, 3)
-    destroyGlow.Container.ZIndex = 10
-
     local SettingsButton = Instance.new("TextButton")
     SettingsButton.Size = UDim2.new(0, 30, 0, 30)
     SettingsButton.Position = UDim2.new(1, -35, 0, 3)
@@ -266,10 +164,6 @@ function Library:CreateUI(title, description)
     SettingsButton.ZIndex = 11
     SettingsButton.Parent = TopBar
     addCorner(SettingsButton, 6)
-
-    -- Add glow to settings button
-    local settingsBtnGlow = createGlowEffect(SettingsButton, Colors.Primary, 0.4, 3)
-    settingsBtnGlow.Container.ZIndex = 10
 
     local ConfirmationOverlay = Instance.new("Frame")
     ConfirmationOverlay.Size = UDim2.new(1, 0, 1, 0)
@@ -289,10 +183,6 @@ function Library:CreateUI(title, description)
     ConfirmationWindow.Parent = ConfirmationOverlay
     addCorner(ConfirmationWindow, 8)
     addStroke(ConfirmationWindow, 2)
-
-    -- Add glow to confirmation window
-    local confirmGlow = createGlowEffect(ConfirmationWindow, Colors.Primary, 0.3, 8)
-    confirmGlow.Container.ZIndex = 18
 
     local ConfirmationText = Instance.new("TextLabel")
     ConfirmationText.Size = UDim2.new(1, 0, 0, 60)
@@ -318,10 +208,6 @@ function Library:CreateUI(title, description)
     ConfirmButton.Parent = ConfirmationWindow
     addCorner(ConfirmButton, 6)
 
-    -- Add glow to confirm button
-    local confirmBtnGlow = createGlowEffect(ConfirmButton, Colors.Danger, 0.4, 3)
-    confirmBtnGlow.Container.ZIndex = 19
-
     local CancelButton = Instance.new("TextButton")
     CancelButton.Size = UDim2.new(0.5, -10, 0, 40)
     CancelButton.Position = UDim2.new(0.5, 5, 1, -45)
@@ -334,10 +220,6 @@ function Library:CreateUI(title, description)
     CancelButton.ZIndex = 20
     CancelButton.Parent = ConfirmationWindow
     addCorner(CancelButton, 6)
-
-    -- Add glow to cancel button
-    local cancelGlow = createGlowEffect(CancelButton, Colors.Success, 0.4, 3)
-    cancelGlow.Container.ZIndex = 19
 
     DestroyButton.MouseButton1Click:Connect(function()
         ConfirmationOverlay.Visible = true
@@ -372,10 +254,6 @@ function Library:CreateUI(title, description)
     ToggleButton.Parent = ScreenGui
     addCorner(ToggleButton, 8)
     addStroke(ToggleButton, 2)
-
-    -- Add glow to toggle button
-    local toggleGlow = createGlowEffect(ToggleButton, Colors.Primary, 0.5, 5)
-    toggleGlow.Container.ZIndex = -1
 
     local isActive = true
     ToggleButton.MouseButton1Click:Connect(function()
@@ -467,10 +345,6 @@ function Library:CreateUI(title, description)
         addCorner(TabButton, 6)
         addStroke(TabButton, 2)
 
-        -- Add glow to tab button
-        local tabGlow = createGlowEffect(TabButton, Colors.Primary, 0.3, 4)
-        tabGlow.Container.ZIndex = -1
-
         local TabFrame = Instance.new("Frame")
         TabFrame.Size = UDim2.new(1, 0, 1, 0)
         TabFrame.BackgroundTransparency = 1
@@ -529,7 +403,7 @@ function Library:CreateUI(title, description)
     return Tab
 end
 
--- UI Elements (modified to include glow effects)
+-- UI Elements
 function Library.addButton(container, buttonText, descriptionText, callback)
     if not container then
         error("Container is nil. Please provide a valid container for the button.")
@@ -547,10 +421,6 @@ function Library.addButton(container, buttonText, descriptionText, callback)
     addCorner(Button, 6)
     addStroke(Button, 2)
 
-    -- Add glow to button
-    local buttonGlow = createGlowEffect(Button, Colors.Primary, 0.3, 4)
-    buttonGlow.Container.ZIndex = -1
-
     local Description = Instance.new("TextLabel")
     Description.Size = UDim2.new(1, -20, 0, 20)
     Description.Position = UDim2.new(0, 10, 0, 25)
@@ -564,11 +434,9 @@ function Library.addButton(container, buttonText, descriptionText, callback)
 
     Button.MouseEnter:Connect(function()
         Button.BackgroundTransparency = 0.5 -- Increased transparency
-        buttonGlow.UpdateColor(Colors.LightPrimary)
     end)
     Button.MouseLeave:Connect(function()
         Button.BackgroundTransparency = 0.7 -- Increased transparency
-        buttonGlow.UpdateColor(Colors.Primary)
     end)
 
     Button.MouseButton1Click:Connect(function()
