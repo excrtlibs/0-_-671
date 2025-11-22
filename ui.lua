@@ -332,31 +332,45 @@ function Library:CreateUI(title, description)
 
     local Tab = {TabsContainer = TabsContainer, Container = Container}
 
-function Tab:AddTab(isPremium, tabName)
-    local TabButton = Instance.new("TextButton")
+function Tab:AddTab(isPremium, tabName, iconId)
+    local TabButton = Instance.new("Frame")
     TabButton.Size = UDim2.new(1, -16, 0, 40)
-    TabButton.Text = tabName
-    TabButton.Font = Enum.Font.Gotham
-    TabButton.TextSize = 16
     TabButton.BackgroundColor3 = Colors.Primary
     TabButton.BackgroundTransparency = 0.7 -- Increased transparency
-    TabButton.TextColor3 = Colors.Text
     TabButton.Parent = TabsContainer
     addCorner(TabButton, 6)
-    
-    -- Enhanced dark purple frame/border
-    local FrameBorder = Instance.new("UIStroke")
-    FrameBorder.Thickness = 3 -- Thicker border
-    FrameBorder.Color = Colors.DarkPrimary -- Dark purple color
-    FrameBorder.Transparency = 0.2 -- Less transparent for more visibility
-    FrameBorder.Parent = TabButton
-    
-    -- Optional: Add inner glow effect
-    local InnerGlow = Instance.new("UIStroke")
-    InnerGlow.Thickness = 1
-    InnerGlow.Color = Colors.LightPrimary
-    InnerGlow.Transparency = 0.7
-    InnerGlow.Parent = TabButton
+    addStroke(TabButton, 2)
+
+    -- Tab button for clicking
+    local TabButtonClick = Instance.new("TextButton")
+    TabButtonClick.Size = UDim2.new(1, 0, 1, 0)
+    TabButtonClick.Text = ""
+    TabButtonClick.BackgroundTransparency = 1
+    TabButtonClick.Parent = TabButton
+
+    -- Icon (if provided)
+    local TabIcon
+    if iconId then
+        TabIcon = Instance.new("ImageLabel")
+        TabIcon.Size = UDim2.new(0, 20, 0, 20)
+        TabIcon.Position = UDim2.new(0, 10, 0.5, -10)
+        TabIcon.BackgroundTransparency = 1
+        TabIcon.Image = iconId
+        TabIcon.ImageColor3 = Colors.Text
+        TabIcon.Parent = TabButton
+    end
+
+    -- Tab name label
+    local TabLabel = Instance.new("TextLabel")
+    TabLabel.Size = UDim2.new(1, iconId and -40 or -20, 1, 0)
+    TabLabel.Position = UDim2.new(0, iconId and 35 or 10, 0, 0)
+    TabLabel.Text = tabName
+    TabLabel.Font = Enum.Font.Gotham
+    TabLabel.TextSize = 16
+    TabLabel.TextColor3 = Colors.Text
+    TabLabel.BackgroundTransparency = 1
+    TabLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TabLabel.Parent = TabButton
 
     local TabFrame = Instance.new("Frame")
     TabFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -387,7 +401,7 @@ function Tab:AddTab(isPremium, tabName)
         FrameScroll.CanvasSize = UDim2.new(0, 0, 0, ButtonLayout.AbsoluteContentSize.Y + 16)
     end)
 
-    TabButton.MouseButton1Click:Connect(function()
+    TabButtonClick.MouseButton1Click:Connect(function()
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://16480549841"
         sound.Volume = 0.5
@@ -396,28 +410,13 @@ function Tab:AddTab(isPremium, tabName)
         sound:Destroy()
 
         for _, button in pairs(TabsContainer:GetChildren()) do
-            if button:IsA("TextButton") then
+            if button:IsA("Frame") then
                 button.BackgroundColor3 = Colors.Primary
                 button.BackgroundTransparency = 0.7
-                -- Reset border for inactive tabs
-                local border = button:FindFirstChildOfClass("UIStroke")
-                if border then
-                    border.Color = Colors.DarkPrimary
-                    border.Transparency = 0.2
-                end
             end
         end
-        
-        -- Highlight active tab with different border
         TabButton.BackgroundColor3 = Colors.LightPrimary
         TabButton.BackgroundTransparency = 0.4 -- Increased transparency
-        
-        -- Change border for active tab
-        local activeBorder = TabButton:FindFirstChildOfClass("UIStroke")
-        if activeBorder then
-            activeBorder.Color = Colors.LightPrimary
-            activeBorder.Transparency = 0.1
-        end
 
         for _, frame in pairs(Container:GetChildren()) do
             if frame:IsA("Frame") then frame.Visible = false end
