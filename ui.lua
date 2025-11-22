@@ -332,73 +332,101 @@ function Library:CreateUI(title, description)
 
     local Tab = {TabsContainer = TabsContainer, Container = Container}
 
-    function Tab:AddTab(isPremium, tabName)
-        local TabButton = Instance.new("TextButton")
-        TabButton.Size = UDim2.new(1, -16, 0, 40)
-        TabButton.Text = tabName
-        TabButton.Font = Enum.Font.Gotham
-        TabButton.TextSize = 16
-        TabButton.BackgroundColor3 = Colors.Primary
-        TabButton.BackgroundTransparency = 0.7 -- Increased transparency
-        TabButton.TextColor3 = Colors.Text
-        TabButton.Parent = TabsContainer
-        addCorner(TabButton, 6)
-        addStroke(TabButton, 2)
+function Tab:AddTab(isPremium, tabName)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Size = UDim2.new(1, -16, 0, 40)
+    TabButton.Text = tabName
+    TabButton.Font = Enum.Font.Gotham
+    TabButton.TextSize = 16
+    TabButton.BackgroundColor3 = Colors.Primary
+    TabButton.BackgroundTransparency = 0.7 -- Increased transparency
+    TabButton.TextColor3 = Colors.Text
+    TabButton.Parent = TabsContainer
+    addCorner(TabButton, 6)
+    
+    -- Enhanced dark purple frame/border
+    local FrameBorder = Instance.new("UIStroke")
+    FrameBorder.Thickness = 3 -- Thicker border
+    FrameBorder.Color = Colors.DarkPrimary -- Dark purple color
+    FrameBorder.Transparency = 0.2 -- Less transparent for more visibility
+    FrameBorder.Parent = TabButton
+    
+    -- Optional: Add inner glow effect
+    local InnerGlow = Instance.new("UIStroke")
+    InnerGlow.Thickness = 1
+    InnerGlow.Color = Colors.LightPrimary
+    InnerGlow.Transparency = 0.7
+    InnerGlow.Parent = TabButton
 
-        local TabFrame = Instance.new("Frame")
-        TabFrame.Size = UDim2.new(1, 0, 1, 0)
-        TabFrame.BackgroundTransparency = 1
-        TabFrame.Visible = false
-        TabFrame.Parent = Container
+    local TabFrame = Instance.new("Frame")
+    TabFrame.Size = UDim2.new(1, 0, 1, 0)
+    TabFrame.BackgroundTransparency = 1
+    TabFrame.Visible = false
+    TabFrame.Parent = Container
 
-        local FrameScroll = Instance.new("ScrollingFrame")
-        FrameScroll.Size = UDim2.new(1, -10, 1, -10)
-        FrameScroll.Position = UDim2.new(0, 5, 0, 5)
-        FrameScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-        FrameScroll.ScrollBarThickness = 0
-        FrameScroll.BackgroundTransparency = 1
-        FrameScroll.Parent = TabFrame
-        addCorner(FrameScroll, 6)
+    local FrameScroll = Instance.new("ScrollingFrame")
+    FrameScroll.Size = UDim2.new(1, -10, 1, -10)
+    FrameScroll.Position = UDim2.new(0, 5, 0, 5)
+    FrameScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    FrameScroll.ScrollBarThickness = 0
+    FrameScroll.BackgroundTransparency = 1
+    FrameScroll.Parent = TabFrame
+    addCorner(FrameScroll, 6)
 
-        local ButtonLayout = Instance.new("UIListLayout")
-        ButtonLayout.Padding = UDim.new(0, 12)
-        ButtonLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        ButtonLayout.Parent = FrameScroll
+    local ButtonLayout = Instance.new("UIListLayout")
+    ButtonLayout.Padding = UDim.new(0, 12)
+    ButtonLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    ButtonLayout.Parent = FrameScroll
 
-        local Padding = Instance.new("UIPadding")
-        Padding.PaddingLeft = UDim.new(0, 8)
-        Padding.PaddingRight = UDim.new(0, 8)
-        Padding.Parent = FrameScroll
+    local Padding = Instance.new("UIPadding")
+    Padding.PaddingLeft = UDim.new(0, 8)
+    Padding.PaddingRight = UDim.new(0, 8)
+    Padding.Parent = FrameScroll
 
-        ButtonLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            FrameScroll.CanvasSize = UDim2.new(0, 0, 0, ButtonLayout.AbsoluteContentSize.Y + 16)
-        end)
+    ButtonLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        FrameScroll.CanvasSize = UDim2.new(0, 0, 0, ButtonLayout.AbsoluteContentSize.Y + 16)
+    end)
 
-        TabButton.MouseButton1Click:Connect(function()
-            local sound = Instance.new("Sound")
-            sound.SoundId = "rbxassetid://16480549841"
-            sound.Volume = 0.5
-            sound.PlayOnRemove = true
-            sound.Parent = TabButton
-            sound:Destroy()
+    TabButton.MouseButton1Click:Connect(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://16480549841"
+        sound.Volume = 0.5
+        sound.PlayOnRemove = true
+        sound.Parent = TabButton
+        sound:Destroy()
 
-            for _, button in pairs(TabsContainer:GetChildren()) do
-                if button:IsA("TextButton") then
-                    button.BackgroundColor3 = Colors.Primary
-                    button.BackgroundTransparency = 0.7
+        for _, button in pairs(TabsContainer:GetChildren()) do
+            if button:IsA("TextButton") then
+                button.BackgroundColor3 = Colors.Primary
+                button.BackgroundTransparency = 0.7
+                -- Reset border for inactive tabs
+                local border = button:FindFirstChildOfClass("UIStroke")
+                if border then
+                    border.Color = Colors.DarkPrimary
+                    border.Transparency = 0.2
                 end
             end
-            TabButton.BackgroundColor3 = Colors.LightPrimary
-            TabButton.BackgroundTransparency = 0.4 -- Increased transparency
+        end
+        
+        -- Highlight active tab with different border
+        TabButton.BackgroundColor3 = Colors.LightPrimary
+        TabButton.BackgroundTransparency = 0.4 -- Increased transparency
+        
+        -- Change border for active tab
+        local activeBorder = TabButton:FindFirstChildOfClass("UIStroke")
+        if activeBorder then
+            activeBorder.Color = Colors.LightPrimary
+            activeBorder.Transparency = 0.1
+        end
 
-            for _, frame in pairs(Container:GetChildren()) do
-                if frame:IsA("Frame") then frame.Visible = false end
-            end
-            TabFrame.Visible = true
-        end)
+        for _, frame in pairs(Container:GetChildren()) do
+            if frame:IsA("Frame") then frame.Visible = false end
+        end
+        TabFrame.Visible = true
+    end)
 
-        return FrameScroll
-    end
+    return FrameScroll
+end
 
     return Tab
 end
