@@ -2865,6 +2865,14 @@ function Library:Notify(...)
             Duration = 5
         }, data)
         
+        -- Calculate position for new notification (stack below existing ones)
+        local totalHeight = 0
+        for _, existingNotification in pairs(Library.ActiveNotifications) do
+            if existingNotification and existingNotification.Parent then
+                totalHeight = totalHeight + existingNotification.AbsoluteSize.Y + 5 -- 5 pixel gap
+            end
+        end
+        
         -- Create notification template
         local NotificationTemplate = Instance.new("Frame")
         NotificationTemplate.Size = UDim2.new(1, 0, 0, 80)
@@ -2943,7 +2951,7 @@ function Library:Notify(...)
         Content.Size = UDim2.new(1, data.Icon and -50 or -30, 0, requiredHeight - 40)
         
         -- Animation in (slide from right)
-        NotificationTemplate.Position = UDim2.new(1, 0, 0, 0) -- Start off-screen to the right
+        NotificationTemplate.Position = UDim2.new(1, 0, 0, totalHeight) -- Start off-screen to the right
         NotificationTemplate.BackgroundTransparency = 1
         Title.TextTransparency = 1
         Content.TextTransparency = 1
@@ -2955,7 +2963,7 @@ function Library:Notify(...)
         
         -- Slide in animation
         TweenService:Create(NotificationTemplate, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-            Position = UDim2.new(0, 0, 0, 0),
+            Position = UDim2.new(0, 0, 0, totalHeight), -- Position below existing notifications
             BackgroundTransparency = 0.3
         }):Play()
         
@@ -2997,9 +3005,12 @@ function Library:CloseNotification(notification, notificationId)
         Library.ActiveNotifications[notificationId] = nil
     end
     
+    -- Get the position of the notification being closed
+    local closedPosition = notification.Position.Y.Offset
+    
     -- Slide out animation (slide to the right)
     TweenService:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Position = UDim2.new(1, 0, 0, 0), -- Move off-screen to the right
+        Position = UDim2.new(1, 0, 0, closedPosition), -- Move off-screen to the right
         BackgroundTransparency = 1
     }):Play()
     
@@ -3017,12 +3028,31 @@ function Library:CloseNotification(notification, notificationId)
         end
     end
     
-    -- Destroy after animation completes
+    -- Destroy after animation completes and reposition remaining notifications
     task.delay(0.35, function()
         if notification and notification.Parent then
             notification:Destroy()
         end
+        
+        -- Reposition all remaining notifications
+        self:RepositionNotifications()
     end)
+end
+
+-- New function to reposition all active notifications
+function Library:RepositionNotifications()
+    local currentY = 0
+    
+    for _, existingNotification in pairs(Library.ActiveNotifications) do
+        if existingNotification and existingNotification.Parent then
+            -- Animate to new position
+            TweenService:Create(existingNotification, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 0, 0, currentY)
+            }):Play()
+            
+            currentY = currentY + existingNotification.AbsoluteSize.Y + 5 -- 5 pixel gap
+        end
+    end
 end
 
 function Library:ClearAllNotifications()
