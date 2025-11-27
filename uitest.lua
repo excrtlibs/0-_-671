@@ -13,18 +13,16 @@ mainGui.Name = "xdd"
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+-- Plant/Nature Color Palette
 local Colors = {
-    Primary       = Color3.fromRGB(135, 206, 250), -- Soft sky blue
-    LightPrimary  = Color3.fromRGB(173, 216, 230), -- Light pastel blue
-    DarkPrimary   = Color3.fromRGB(70, 130, 180),  -- Calm steel blue
-    
-    Background    = Color3.fromRGB(240, 248, 255), -- Cloudy white-blue background
-    Text          = Color3.fromRGB(220, 230, 240), -- Soft cloudy text
-    
-    Accent        = Color3.fromRGB(176, 196, 222), -- Misty blue accent
-    
-    Success       = Color3.fromRGB(144, 238, 144), -- Light airy green (fresh wind)
-    Danger        = Color3.fromRGB(250, 128, 114)  -- Soft sunset red
+    Primary = Color3.fromRGB(76, 175, 80),       -- Rich green
+    LightPrimary = Color3.fromRGB(129, 199, 132), -- Soft mint green
+    DarkPrimary = Color3.fromRGB(27, 94, 32),    -- Deep forest green
+    Background = Color3.fromRGB(13, 28, 15),     -- Dark green background
+    Text = Color3.fromRGB(232, 245, 233),        -- Soft white-green text
+    Accent = Color3.fromRGB(102, 187, 106),      -- Muted green accent
+    Success = Color3.fromRGB(56, 142, 60),       -- Healthy green
+    Danger = Color3.fromRGB(211, 47, 47)         -- Earth red
 }
 
 -- Utility Functions
