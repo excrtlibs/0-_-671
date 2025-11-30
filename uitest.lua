@@ -3034,7 +3034,7 @@ function Library:ClearAllNotifications()
     Library.ActiveNotifications = {}
 end
 
--- ADD THE UPDATE FUNCTION RIGHT HERE:
+-- Add this function to update dropdown options dynamically
 function Library.updateDropdown(container, labelText, newOptions)
     -- Find the dropdown by its label text
     for _, child in pairs(container:GetChildren()) do
@@ -3043,7 +3043,7 @@ function Library.updateDropdown(container, labelText, newOptions)
             if label and label.Text == labelText then
                 -- Found the dropdown frame, now find the dropdown button
                 for _, grandchild in pairs(child:GetChildren()) do
-                    if grandchild:IsA("TextButton") and grandchild.Name == "DropdownButton" then
+                    if grandchild:IsA("TextButton") then
                         local dropdownList = child:FindFirstChild("DropdownList")
                         if dropdownList then
                             local scrollFrame = dropdownList:FindFirstChildOfClass("ScrollingFrame")
@@ -3053,6 +3053,12 @@ function Library.updateDropdown(container, labelText, newOptions)
                                     if optionBtn:IsA("TextButton") then
                                         optionBtn:Destroy()
                                     end
+                                end
+                                
+                                -- Update the layout
+                                local layout = scrollFrame:FindFirstChildOfClass("UIListLayout")
+                                if layout then
+                                    layout:ApplyLayout()
                                 end
                                 
                                 -- Add new options
@@ -3078,8 +3084,17 @@ function Library.updateDropdown(container, labelText, newOptions)
                                     OptionButton.MouseButton1Click:Connect(function()
                                         grandchild.Text = option
                                         dropdownList.Visible = false
-                                        child:FindFirstChild("Arrow").Text = "▼"
+                                        local arrow = grandchild:FindFirstChild("Arrow") or child:FindFirstChild("Arrow")
+                                        if arrow then
+                                            arrow.Text = "▼"
+                                        end
                                     end)
+                                end
+                                
+                                -- Update the canvas size
+                                task.wait(0.1)
+                                if layout then
+                                    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
                                 end
                                 return true
                             end
