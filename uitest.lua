@@ -3034,4 +3034,62 @@ function Library:ClearAllNotifications()
     Library.ActiveNotifications = {}
 end
 
+-- ADD THE UPDATE FUNCTION RIGHT HERE:
+function Library.updateDropdown(container, labelText, newOptions)
+    -- Find the dropdown by its label text
+    for _, child in pairs(container:GetChildren()) do
+        if child:IsA("Frame") then
+            local label = child:FindFirstChild("TextLabel")
+            if label and label.Text == labelText then
+                -- Found the dropdown frame, now find the dropdown button
+                for _, grandchild in pairs(child:GetChildren()) do
+                    if grandchild:IsA("TextButton") and grandchild.Name == "DropdownButton" then
+                        local dropdownList = child:FindFirstChild("DropdownList")
+                        if dropdownList then
+                            local scrollFrame = dropdownList:FindFirstChildOfClass("ScrollingFrame")
+                            if scrollFrame then
+                                -- Clear existing options
+                                for _, optionBtn in pairs(scrollFrame:GetChildren()) do
+                                    if optionBtn:IsA("TextButton") then
+                                        optionBtn:Destroy()
+                                    end
+                                end
+                                
+                                -- Add new options
+                                for _, option in ipairs(newOptions) do
+                                    local OptionButton = Instance.new("TextButton")
+                                    OptionButton.Size = UDim2.new(1, 0, 0, 30)
+                                    OptionButton.Text = option
+                                    OptionButton.TextSize = 14
+                                    OptionButton.Font = Enum.Font.Gotham
+                                    OptionButton.TextColor3 = Colors.Text
+                                    OptionButton.BackgroundColor3 = Colors.Primary
+                                    OptionButton.BackgroundTransparency = 0.7
+                                    OptionButton.Parent = scrollFrame
+                                    addCorner(OptionButton, 4)
+
+                                    OptionButton.MouseEnter:Connect(function()
+                                        OptionButton.BackgroundTransparency = 0.5
+                                    end)
+                                    OptionButton.MouseLeave:Connect(function()
+                                        OptionButton.BackgroundTransparency = 0.7
+                                    end)
+
+                                    OptionButton.MouseButton1Click:Connect(function()
+                                        grandchild.Text = option
+                                        dropdownList.Visible = false
+                                        child:FindFirstChild("Arrow").Text = "▼"
+                                    end)
+                                end
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
 return Library
