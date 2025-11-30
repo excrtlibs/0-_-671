@@ -13,16 +13,16 @@ mainGui.Name = "xdd"
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Ocean Aesthetic Color Palette
+-- Light Ocean Aesthetic Color Palette
 local Colors = {
-    Primary = Color3.fromRGB(0, 105, 148),        -- Deep ocean blue
-    LightPrimary = Color3.fromRGB(64, 156, 191),  -- Soft aqua-blue
-    DarkPrimary = Color3.fromRGB(0, 57, 84),      -- Dark deep-sea blue
-    Background = Color3.fromRGB(5, 20, 35),       -- Very dark navy (ocean depth)
-    Text = Color3.fromRGB(224, 240, 255),         -- Soft light blue-white
-    Accent = Color3.fromRGB(0, 168, 232),         -- Bright aqua highlight
-    Success = Color3.fromRGB(0, 132, 168),        -- Calm ocean teal
-    Danger = Color3.fromRGB(220, 60, 70)          -- Coral red (fits ocean theme)
+    Primary = Color3.fromRGB(120, 200, 230),      -- Light ocean blue
+    LightPrimary = Color3.fromRGB(180, 230, 250), -- Very soft aqua
+    DarkPrimary = Color3.fromRGB(80, 160, 200),   -- Slightly deeper light blue
+    Background = Color3.fromRGB(225, 245, 255),   -- Very light sky/ocean mist
+    Text = Color3.fromRGB(30, 60, 90),            -- Soft dark blue for readability
+    Accent = Color3.fromRGB(100, 220, 255),       -- Bright aqua highlight
+    Success = Color3.fromRGB(90, 190, 210),       -- Calm teal-blue success
+    Danger = Color3.fromRGB(255, 95, 95)          -- Soft coral red
 }
 
 -- Utility Functions
