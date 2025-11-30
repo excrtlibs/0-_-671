@@ -13,16 +13,16 @@ mainGui.Name = "xdd"
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Gray Aesthetic
+-- Pure Gray Colors
 local Colors = {
-    Primary = Color3.fromRGB(160, 160, 160),      -- Medium gray
-    LightPrimary = Color3.fromRGB(220, 220, 220), -- Light gray
-    DarkPrimary = Color3.fromRGB(100, 100, 100),  -- Dark gray
-    Background = Color3.fromRGB(240, 240, 240),   -- Off-white background
-    Text = Color3.fromRGB(40, 40, 40),            -- Near-black for readability
-    Accent = Color3.fromRGB(140, 140, 140),       -- Medium-dark gray accent
-    Success = Color3.fromRGB(120, 120, 120),      -- Muted gray success tone
-    Danger = Color3.fromRGB(180, 180, 180)        -- Light gray for alerts
+    Primary = Color3.fromRGB(128, 128, 128),      -- Medium gray
+    LightPrimary = Color3.fromRGB(192, 192, 192), -- Light gray  
+    DarkPrimary = Color3.fromRGB(64, 64, 64),     -- Dark gray
+    Background = Color3.fromRGB(224, 224, 224),   -- Light background gray
+    Text = Color3.fromRGB(32, 32, 32),            -- Dark text gray
+    Accent = Color3.fromRGB(96, 96, 96),          -- Accent gray
+    Success = Color3.fromRGB(160, 160, 160),      -- Success gray
+    Danger = Color3.fromRGB(80, 80, 80)           -- Danger gray
 }
 
 -- Utility Functions
