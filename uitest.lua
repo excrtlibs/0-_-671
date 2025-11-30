@@ -13,16 +13,16 @@ mainGui.Name = "xdd"
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Plant/Nature Color Palette
+-- Ocean Aesthetic Color Palette
 local Colors = {
-    Primary = Color3.fromRGB(76, 175, 80),       -- Rich green
-    LightPrimary = Color3.fromRGB(129, 199, 132), -- Soft mint green
-    DarkPrimary = Color3.fromRGB(27, 94, 32),    -- Deep forest green
-    Background = Color3.fromRGB(13, 28, 15),     -- Dark green background
-    Text = Color3.fromRGB(232, 245, 233),        -- Soft white-green text
-    Accent = Color3.fromRGB(102, 187, 106),      -- Muted green accent
-    Success = Color3.fromRGB(56, 142, 60),       -- Healthy green
-    Danger = Color3.fromRGB(211, 47, 47)         -- Earth red
+    Primary = Color3.fromRGB(0, 105, 148),        -- Deep ocean blue
+    LightPrimary = Color3.fromRGB(64, 156, 191),  -- Soft aqua-blue
+    DarkPrimary = Color3.fromRGB(0, 57, 84),      -- Dark deep-sea blue
+    Background = Color3.fromRGB(5, 20, 35),       -- Very dark navy (ocean depth)
+    Text = Color3.fromRGB(224, 240, 255),         -- Soft light blue-white
+    Accent = Color3.fromRGB(0, 168, 232),         -- Bright aqua highlight
+    Success = Color3.fromRGB(0, 132, 168),        -- Calm ocean teal
+    Danger = Color3.fromRGB(220, 60, 70)          -- Coral red (fits ocean theme)
 }
 
 -- Utility Functions
