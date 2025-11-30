@@ -13,16 +13,16 @@ mainGui.Name = "xdd"
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Seafoam Ocean Aesthetic (Matches Your Image)
+-- Gray Aesthetic
 local Colors = {
-    Primary = Color3.fromRGB(95, 235, 255),      -- Bright seafoam aqua (matches "seafoam" text)
-    LightPrimary = Color3.fromRGB(170, 255, 255),-- Very light aqua glow
-    DarkPrimary = Color3.fromRGB(40, 170, 200),  -- Deeper blue (matches the ocean shadows)
-    Background = Color3.fromRGB(185, 240, 255),  -- Soft sky-water blend
-    Text = Color3.fromRGB(20, 60, 80),           -- Soft deep blue for readability
-    Accent = Color3.fromRGB(70, 210, 255),       -- Strong aqua highlight
-    Success = Color3.fromRGB(60, 180, 200),      -- Calm teal success tone
-    Danger = Color3.fromRGB(255, 105, 120)       -- Soft coral-pink (matches fish)
+    Primary = Color3.fromRGB(160, 160, 160),      -- Medium gray
+    LightPrimary = Color3.fromRGB(220, 220, 220), -- Light gray
+    DarkPrimary = Color3.fromRGB(100, 100, 100),  -- Dark gray
+    Background = Color3.fromRGB(240, 240, 240),   -- Off-white background
+    Text = Color3.fromRGB(40, 40, 40),            -- Near-black for readability
+    Accent = Color3.fromRGB(140, 140, 140),       -- Medium-dark gray accent
+    Success = Color3.fromRGB(120, 120, 120),      -- Muted gray success tone
+    Danger = Color3.fromRGB(180, 180, 180)        -- Light gray for alerts
 }
 
 -- Utility Functions
